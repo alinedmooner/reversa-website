@@ -1,0 +1,35 @@
+---
+import FadeContent from '../FadeContent/FadeContent';
+import { STACK } from '../../site.config';
+---
+
+<section id="stack" class="section">
+  <div class="container">
+    <FadeContent client:visible duration={700}>
+      <div class="section-head">
+        <p class="eyebrow">{STACK.eyebrow}</p>
+        <h2 class="section-title">{STACK.heading}</h2>
+      </div>
+      <ul class="stack__chips" role="list">
+        {STACK.chips.map(chip => <li class="badge badge--neutral badge--pill stack__chip">{chip}</li>)}
+      </ul>
+    </FadeContent>
+  </div>
+</section>
+
+<style>
+  .stack__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    max-inline-size: 48rem;
+  }
+
+  /* Chips are ds badges sized up one notch; primary text for AA contrast
+     on the raised surface. */
+  .stack__chip {
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--font-size-small);
+    color: var(--color-text-primary);
+  }
+</style>

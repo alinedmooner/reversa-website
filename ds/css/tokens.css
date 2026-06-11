@@ -1,0 +1,127 @@
+/* tokens.css — design tokens. Custom properties only; no rules.
+   Derived from a 150-screenshot survey of a dark, data-dense
+   investment-research product (frequencies annotated). */
+
+:root {
+  /* ---------- Color: surfaces ---------- */
+  --color-background: #0d0d0f;     /* universal canvas (150/150) */
+  --color-surface: #1a1a1c;        /* panels, cards, popovers (87/150) */
+  --color-surface-raised: #222229; /* nav / command bar (21/150) */
+  --color-surface-sunken: #050505; /* recessed wells */
+
+  /* ---------- Color: borders ---------- */
+  --color-border: #282828;         /* default 1px divider (58/150) */
+  --color-border-strong: #2a2a2e;  /* dense tables */
+  --color-border-subtle: #1f1f23;  /* row separators (21/150) */
+
+  /* ---------- Color: text ---------- */
+  --color-text-primary: #ebebeb;    /* body, headings (115/150) */
+  --color-text-bright: #ffffff;     /* emphasis, key numbers (36/150) */
+  --color-text-secondary: #7a7a7f;  /* descriptions (105/150) */
+  --color-text-tertiary: #9a9a9b;   /* faint labels (17/150) */
+  --color-text-quaternary: #6a6a72; /* placeholder, disabled (5/150) */
+
+  /* ---------- Color: accent ---------- */
+  --color-accent: #e8264a;          /* primary accent (27/150) */
+  --color-accent-orange: #e2783a;   /* warm secondary (16/150) */
+  --color-accent-purple: #a66cd9;   /* chart series (6/150) */
+  --color-accent-lavender: #c5b0d8; /* chart series (10/150) */
+
+  /* ---------- Color: semantic ---------- */
+  --color-positive: #3fb37f;
+  --color-positive-strong: #2bbf6f;
+  --color-positive-bg: #1b3321;
+  --color-negative: #d94b3f;
+  --color-negative-soft: #e35a5a;
+  --color-negative-bg: #3a1a1a;
+  --color-warning: #e8a040;
+
+  /* ---------- Color: interaction ---------- */
+  --color-focus-ring: #7a7a7f;                  /* focus-visible outline */
+  --color-selection: rgb(232 38 74 / 35%);      /* ::selection */
+
+  /* ---------- Typography ---------- */
+  --font-family-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-family-serif: "Tiempos", Georgia, serif;
+  --font-family-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --font-size-caption: 0.6875rem;    /* 11px — labels, small */
+  --font-size-small: 0.75rem;        /* 12px — compact secondary */
+  --font-size-body: 0.8125rem;       /* 13px — default body */
+  --font-size-body-lg: 0.875rem;     /* 14px — emphasized body / h3 */
+  --font-size-lead: 1rem;            /* 16px — lead paragraphs */
+  --font-size-h2: 1.375rem;          /* 22px — section headings */
+  --font-size-h1: 1.875rem;          /* 30px — page headings */
+  --font-size-display: 2.25rem;      /* 36px — marketing display */
+  --font-size-display-lg: 3rem;      /* 48px */
+  --font-size-display-xl: 4rem;      /* 64px */
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  --line-height-tight: 1.2; /* @kind font */   /* display, big numbers */
+  --line-height-normal: 1.5; /* @kind font */  /* body */
+  --line-height-loose: 1.7; /* @kind font */   /* long-form copy */
+
+  --letter-spacing-display: -0.02em; /* @kind font */
+  --letter-spacing-heading: -0.015em; /* @kind font */
+  --letter-spacing-eyebrow: 0.08em; /* @kind font */
+
+  /* ---------- Spacing (4px base unit) ---------- */
+  --space-1: 0.25rem;   /*  4px */
+  --space-2: 0.5rem;    /*  8px — icon-to-text */
+  --space-3: 0.75rem;   /* 12px — inline pad */
+  --space-4: 1rem;      /* 16px — default container pad (most common) */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px — card padding */
+  --space-7: 1.75rem;   /* 28px */
+  --space-8: 2rem;      /* 32px — section padding */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px — page-level gap */
+
+  /* ---------- Radius ---------- */
+  --radius-xs: 4px;     /* chips, inline badges */
+  --radius-sm: 6px;     /* small buttons */
+  --radius-md: 8px;     /* buttons, inputs */
+  --radius-lg: 10px;    /* popovers, card-inner ("house" radius) */
+  --radius-xl: 12px;    /* cards */
+  --radius-2xl: 16px;   /* modals */
+  --radius-3xl: 24px;   /* large image surfaces */
+  --radius-full: 9999px;
+
+  /* ---------- Elevation ---------- */
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 40%);
+  --shadow-md: 0 4px 12px rgb(0 0 0 / 50%);
+  --shadow-lg: 0 16px 40px rgb(0 0 0 / 60%), 0 2px 4px rgb(0 0 0 / 50%);
+
+  /* ---------- Z-index scale ---------- */
+  --z-sticky: 10; /* @kind other */
+  --z-dropdown: 20; /* @kind other */
+  --z-overlay: 30; /* @kind other */
+  --z-modal: 40; /* @kind other */
+  --z-toast: 50; /* @kind other */
+
+  /* ---------- Semantic aliases (prototyping shorthand) ---------- */
+  --fg1: var(--color-text-primary);
+  --fg2: var(--color-text-secondary);
+  --fg3: var(--color-text-tertiary);
+  --fg4: var(--color-text-quaternary);
+  --fg-bright: var(--color-text-bright);
+  --bg1: var(--color-background);
+  --bg2: var(--color-surface);
+  --bg3: var(--color-surface-raised);
+  --bg-sunken: var(--color-surface-sunken);
+  --line: var(--color-border);
+  --line-soft: var(--color-border-subtle);
+  --accent: var(--color-accent);
+  --gain: var(--color-positive);
+  --loss: var(--color-negative);
+  --sans: var(--font-family-sans);
+  --serif-display: var(--font-family-serif);
+  --mono: var(--font-family-mono);
+
+  /* The system is dark-native; tell the UA so form controls,
+     scrollbars and system widgets render dark. */
+  color-scheme: dark;
+}

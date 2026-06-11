@@ -1,0 +1,121 @@
+---
+import GradientText from '../GradientText/GradientText';
+import { FOOTER, NAV } from '../../site.config';
+
+const external = (href: string) =>
+  href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {};
+---
+
+<footer class="site-footer">
+  <div class="container site-footer__inner">
+    <GradientText client:visible className="site-footer__line" animationSpeed={6}>
+      {FOOTER.line}
+    </GradientText>
+
+    <div class="site-footer__meta">
+      <p class="site-footer__org">
+        <a href={FOOTER.orgUrl} {...external(FOOTER.orgUrl)}>{FOOTER.org}</a> · {FOOTER.location}
+      </p>
+      <nav aria-label="Footer">
+        <ul class="site-footer__links" role="list">
+          {FOOTER.links.map(link => (
+            <li><a href={link.href} {...external(link.href)}>{link.label}</a></li>
+          ))}
+          {NAV.map(item => (
+            <li><a href={item.href}>{item.label}</a></li>
+          ))}
+        </ul>
+      </nav>
+    </div>
+
+    <div class="site-footer__notes">
+      <p class="caption">
+        {FOOTER.credit.prefix}<a
+          href={FOOTER.credit.href}
+          {...external(FOOTER.credit.href)}>{FOOTER.credit.label}</a>{FOOTER.credit.suffix}
+      </p>
+      <p class="caption">
+        {FOOTER.openSource.prefix}<a
+          href={FOOTER.openSource.href}
+          {...external(FOOTER.openSource.href)}>{FOOTER.openSource.label}</a>{FOOTER.openSource.suffix}
+      </p>
+      <p class="caption site-footer__legal">{FOOTER.smallPrint}</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-block-start: 1px solid var(--color-border-subtle);
+    padding-block: var(--space-12);
+  }
+
+  .site-footer__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-8);
+    text-align: center;
+  }
+
+  .site-footer :global(.site-footer__line) {
+    font-size: clamp(var(--font-size-lead), 2.4vw, var(--font-size-h2));
+    font-weight: var(--font-weight-medium);
+    letter-spacing: var(--letter-spacing-heading);
+  }
+
+  .site-footer__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .site-footer__org,
+  .site-footer__org a {
+    color: var(--color-text-primary);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .site-footer__org a:hover {
+    color: var(--color-text-bright);
+  }
+
+  .site-footer__links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2) var(--space-5);
+  }
+
+  .site-footer__links a {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-body);
+    transition: var(--t-base);
+  }
+
+  .site-footer__links a:hover {
+    color: var(--color-text-bright);
+  }
+
+  .site-footer__notes {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    max-inline-size: 60ch;
+  }
+
+  .site-footer__notes a {
+    color: var(--color-text-primary);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    text-decoration-color: var(--color-border);
+    transition: var(--t-base);
+  }
+
+  .site-footer__notes a:hover {
+    color: var(--color-text-bright);
+    text-decoration-color: var(--color-accent);
+  }
+</style>

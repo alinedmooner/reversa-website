@@ -1,0 +1,28 @@
+/* ============================================================
+   ds.css — single entry point for the Yef design system
+   ------------------------------------------------------------
+   Import THIS file once and you have the whole system:
+
+     <link rel="stylesheet" href="ds/ds.css">
+
+   Cascade layers (lowest → highest priority):
+     reset      — minimal modern reset
+     tokens     — design tokens (custom properties only)
+     base       — element baseline (h1, p, a, code …)
+     components — class-based components (.btn, .card …)
+     motion     — animation utilities (.m-*)
+     utilities  — small single-purpose helpers
+
+   Anything YOU write outside a layer beats all of these —
+   override freely without specificity wars or !important.
+   ============================================================ */
+
+@layer reset, tokens, base, components, motion, utilities;
+
+@import url("./css/fonts.css");
+@import url("./css/reset.css")      layer(reset);
+@import url("./css/tokens.css")     layer(tokens);
+@import url("./css/base.css")       layer(base);
+@import url("./css/components.css") layer(components);
+@import url("./css/motion.css")     layer(motion);
+@import url("./css/utilities.css")  layer(utilities);

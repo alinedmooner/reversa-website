@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ds — kitchen sink</title>
+<link rel="stylesheet" href="ds.css">
+<style>
+  /* Page scaffolding only — everything visual comes from ds.css */
+  .page { max-width: 880px; margin-inline: auto; padding: var(--space-12) var(--space-6); display: flex; flex-direction: column; gap: var(--space-10); }
+  .demo-section { display: flex; flex-direction: column; gap: var(--space-4); }
+  .demo-row { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+  .demo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <header class="demo-section">
+    <p class="eyebrow">Design system · kitchen sink</p>
+    <p class="display display-lg">Everything, one stylesheet.</p>
+    <p class="lead muted">This page loads <code>ds.css</code> and nothing else. No JavaScript, no CDN, no build step.</p>
+  </header>
+
+  <hr>
+
+  <section class="demo-section">
+    <h2>Type</h2>
+    <h1>Page heading — h1</h1>
+    <h2>Section heading — h2</h2>
+    <h3>Sub-heading — h3</h3>
+    <p>Body text at 13px/1.5. Numbers stay tabular when marked: <span class="tabular">$1,234.56 · +1.24%</span>. Inline <code>code</code>, <kbd>⌘K</kbd> keys, and <a href="#">links that brighten on hover</a>.</p>
+    <p class="caption">Caption — 11px secondary.</p>
+    <p class="eyebrow">Eyebrow label</p>
+  </section>
+
+  <section class="demo-section">
+    <h2>Buttons</h2>
+    <div class="demo-row">
+      <button class="btn btn--primary">Primary</button>
+      <button class="btn btn--secondary">Secondary</button>
+      <button class="btn btn--ghost">Ghost</button>
+      <button class="btn btn--text">Text</button>
+      <button class="btn btn--danger">Danger</button>
+      <button class="btn btn--primary" disabled>Disabled</button>
+      <button class="btn btn--secondary btn--sm">Small</button>
+      <button class="btn btn--secondary btn--pill">Pill</button>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Forms</h2>
+    <div class="demo-grid">
+      <div class="field">
+        <label class="field__label" for="ex-name">Name</label>
+        <input class="input" id="ex-name" placeholder="Jane Trader">
+        <p class="field__help">Helper text under the field.</p>
+      </div>
+      <div class="field">
+        <label class="field__label" for="ex-email">Email</label>
+        <input class="input" id="ex-email" value="not-an-email">
+        <p class="field__error">Enter a valid email address.</p>
+      </div>
+      <div class="field">
+        <label class="field__label" for="ex-notes">Notes</label>
+        <textarea class="input" id="ex-notes" rows="1" placeholder="Add a note…"></textarea>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Badges &amp; tabs</h2>
+    <div class="demo-row">
+      <span class="badge badge--positive">▲ +2.41%</span>
+      <span class="badge badge--negative">▼ −1.18%</span>
+      <span class="badge badge--neutral">Neutral</span>
+      <span class="badge badge--warning">Earnings · 5d</span>
+      <span class="badge badge--neutral badge--pill">Pill</span>
+      <span class="tabs">
+        <button class="tab tab--active">1D</button>
+        <button class="tab">1W</button>
+        <button class="tab">1M</button>
+        <button class="tab">1Y</button>
+      </span>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Cards</h2>
+    <div class="demo-grid">
+      <div class="card">
+        <div class="card__header">
+          <span class="card__title">Default card</span>
+          <span class="badge badge--positive">+0.68%</span>
+        </div>
+        <p class="muted">Surface fill, hairline border, no shadow.</p>
+      </div>
+      <div class="card card--raised">
+        <div class="card__header"><span class="card__title">Raised</span></div>
+        <p class="muted">surface-raised + shadow-md.</p>
+      </div>
+      <div class="card card--flat">
+        <div class="card__header"><span class="card__title">Flat</span></div>
+        <p class="muted">Subtle border variant.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Table</h2>
+    <table class="table table--dense">
+      <thead>
+        <tr><th>Ticker</th><th>Name</th><th style="text-align:right">Price</th><th style="text-align:right">Day</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="mono bright">AAPL</td><td class="muted">Apple Inc.</td><td style="text-align:right" class="bright">184.92</td><td style="text-align:right" class="delta-up">+0.68%</td></tr>
+        <tr><td class="mono bright">NVDA</td><td class="muted">NVIDIA Corp.</td><td style="text-align:right" class="bright">912.40</td><td style="text-align:right" class="delta-up">+2.41%</td></tr>
+        <tr><td class="mono bright">TSLA</td><td class="muted">Tesla, Inc.</td><td style="text-align:right" class="bright">221.05</td><td style="text-align:right" class="delta-down">−1.18%</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="demo-section">
+    <h2>Motion</h2>
+    <div class="demo-row">
+      <span class="toast"><span class="m-dot m-dot--gain"></span> Live indicator</span>
+      <span class="m-spinner-loop" role="status" aria-label="Loading"></span>
+      <span class="mono" style="font-size: var(--font-size-body)">/command<span class="m-caret-loop"></span></span>
+      <span class="card card--flat m-shimmer-loop" style="inline-size: 140px; block-size: 20px; padding: 0" aria-hidden="true"></span>
+    </div>
+    <p class="caption">Pulse dot · spinner · caret · skeleton. All stop under prefers-reduced-motion.</p>
+  </section>
+
+  <section class="demo-section">
+    <h2>Overriding</h2>
+    <p>Everything ships in <code>@layer</code> — your unlayered CSS wins automatically:</p>
+    <pre class="card card--flat" style="padding: var(--space-4); font-size: var(--font-size-small); overflow-x: auto"><code>:root { --color-accent: #2a6fdb; }   /* retheme */
+.btn--primary { border-radius: 999px; } /* reshape — no !important needed */</code></pre>
+  </section>
+
+  <footer>
+    <hr>
+    <p class="caption">ds — vanilla CSS design system. See README.md for the full reference.</p>
+  </footer>
+
+</main>
+</body>
+</html>

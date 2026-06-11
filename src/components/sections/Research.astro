@@ -1,0 +1,121 @@
+---
+import DecryptedText from '../DecryptedText/DecryptedText';
+import FadeContent from '../FadeContent/FadeContent';
+import { RESEARCH } from '../../site.config';
+---
+
+<section id="research" class="section">
+  <div class="container">
+    {/* The heading sits outside FadeContent: its decrypt animation is its
+        own reveal, and FadeContent's visibility:hidden would otherwise let
+        the scramble play unseen (IntersectionObserver fires on geometry,
+        not visibility). */}
+    <div class="section-head">
+      <p class="eyebrow">{RESEARCH.eyebrow}</p>
+      <h2 class="display research__heading">
+        <DecryptedText
+          client:visible
+          text={RESEARCH.heading}
+          animateOn="view"
+          sequential
+          speed={40}
+          encryptedClassName="research__scramble"
+        />
+      </h2>
+    </div>
+    <FadeContent client:visible duration={700}>
+      <div class="research__copy">
+        {RESEARCH.paragraphs.map(paragraph => <p>{paragraph}</p>)}
+      </div>
+    </FadeContent>
+
+    <FadeContent client:visible duration={700} delay={100}>
+      {/* tabindex: the horizontal scroll region must be keyboard-operable
+          (Safari does not make scrollers focusable on its own). */}
+      <div class="research__table-wrap" tabindex="0" role="region" aria-label={RESEARCH.table.ariaLabel}>
+        <table class="table research__table">
+          <caption class="visually-hidden">{RESEARCH.table.ariaLabel}</caption>
+          <thead>
+            <tr>
+              <th scope="col"><span class="visually-hidden">Aspect</span></th>
+              {RESEARCH.table.columns.map(column => <th scope="col">{column}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {
+              RESEARCH.table.rows.map(row => (
+                <tr>
+                  <th scope="row">{row.aspect}</th>
+                  <td>{row.brazil}</td>
+                  <td>{row.colombia}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+      <p class="research__link">
+        <a href={RESEARCH.link.href} target="_blank" rel="noopener noreferrer">{RESEARCH.link.label}</a>
+      </p>
+    </FadeContent>
+  </div>
+</section>
+
+<style>
+  /* Second (and last) serif display moment on the page. */
+  .research__heading {
+    font-size: clamp(var(--font-size-h1), 5vw, var(--font-size-display));
+  }
+
+  .research__heading :global(.research__scramble) {
+    color: var(--color-text-secondary);
+  }
+
+  .research__copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    max-inline-size: 62ch;
+  }
+
+  .research__copy p {
+    font-size: var(--font-size-lead);
+    line-height: var(--line-height-loose);
+  }
+
+  .research__table-wrap {
+    margin-block-start: var(--space-10);
+    max-inline-size: 56rem;
+    overflow-x: auto;
+  }
+
+  .research__table {
+    min-inline-size: 34rem;
+  }
+
+  .research__table th[scope='row'] {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    text-align: start;
+    padding: var(--space-3);
+    border-block-end: 1px solid var(--color-border-subtle);
+    font-size: var(--font-size-body);
+  }
+
+  .research__link {
+    margin-block-start: var(--space-6);
+  }
+
+  .research__link a {
+    color: var(--color-text-primary);
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+    text-decoration-color: var(--color-border);
+    transition: var(--t-base);
+  }
+
+  .research__link a:hover {
+    color: var(--color-text-bright);
+    text-decoration-color: var(--color-accent);
+  }
+</style>

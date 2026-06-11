@@ -1,0 +1,99 @@
+---
+import CountUp from '../CountUp/CountUp';
+import FadeContent from '../FadeContent/FadeContent';
+import { PROBLEM } from '../../site.config';
+---
+
+<section id="problem" class="section">
+  <div class="container">
+    <FadeContent client:visible duration={700}>
+      <div class="section-head">
+        <p class="eyebrow">{PROBLEM.eyebrow}</p>
+        <h2 class="section-title">{PROBLEM.heading}</h2>
+      </div>
+      <div class="problem__copy">
+        {PROBLEM.paragraphs.map(paragraph => <p>{paragraph}</p>)}
+      </div>
+    </FadeContent>
+
+    <ul class="problem__stats" role="list" data-reveal data-reveal-children>
+      {
+        PROBLEM.stats.map(stat => (
+          <li class="stat">
+            <p class="stat__value">
+              <CountUp
+                client:visible={{ rootMargin: '200px' }}
+                to={stat.value}
+                duration={1.8}
+                separator=","
+                className="tabular"
+              />{stat.suffix && <span class="stat__suffix">{stat.suffix}</span>}
+            </p>
+            <p class="stat__label">{stat.label}</p>
+            <p class="stat__source caption">{stat.source}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .problem__copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    max-inline-size: 62ch;
+  }
+
+  .problem__copy p {
+    font-size: var(--font-size-lead);
+    line-height: var(--line-height-loose);
+  }
+
+  .problem__stats {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+    margin-block-start: var(--space-12);
+  }
+
+  @media (min-width: 40em) {
+    .problem__stats {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 60em) {
+    .problem__stats {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .stat {
+    border-block-start: 1px solid var(--color-border);
+    padding-block-start: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .stat__value {
+    color: var(--color-text-bright);
+    font-size: var(--font-size-display-lg);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-tight);
+    letter-spacing: var(--letter-spacing-display);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat__label {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-body-lg);
+    text-wrap: pretty;
+  }
+
+  .stat__source {
+    margin-block-start: auto;
+  }
+</style>

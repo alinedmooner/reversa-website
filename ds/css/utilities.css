@@ -1,0 +1,62 @@
+/* utilities.css — single-purpose helpers. Kept deliberately
+   small; this is not a utility framework. */
+
+/* Type roles */
+.display {
+  font-family: var(--font-family-serif);
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.05;
+  letter-spacing: var(--letter-spacing-display);
+  color: var(--color-text-bright);
+}
+
+.display-lg { font-size: var(--font-size-display-lg); }
+.display-xl { font-size: var(--font-size-display-xl); }
+
+.lead {
+  font-size: var(--font-size-lead);
+  line-height: var(--line-height-normal);
+}
+
+.caption {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-secondary);
+}
+
+.eyebrow {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-eyebrow);
+  color: var(--color-text-secondary);
+}
+
+/* Numbers */
+.tabular { font-variant-numeric: tabular-nums; }
+
+/* Financial deltas */
+.delta-up { color: var(--color-positive); }
+.delta-down { color: var(--color-negative); }
+
+/* Text color helpers */
+.muted { color: var(--color-text-secondary); }
+.bright { color: var(--color-text-bright); }
+
+/* Font helpers */
+.sans { font-family: var(--font-family-sans); }
+.serif { font-family: var(--font-family-serif); }
+.mono { font-family: var(--font-family-mono); }
+
+/* Visually hidden (a11y) */
+.visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

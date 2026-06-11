@@ -1,0 +1,71 @@
+---
+import FadeContent from '../FadeContent/FadeContent';
+import { RAILS } from '../../site.config';
+---
+
+<section id="rails" class="section">
+  <div class="container">
+    <FadeContent client:visible duration={700}>
+      <div class="section-head">
+        <p class="eyebrow">{RAILS.eyebrow}</p>
+        <h2 class="section-title">{RAILS.heading}</h2>
+      </div>
+
+      <div class="rails__grid">
+        {
+          RAILS.cases.map(railCase => (
+            <figure class="card rails__case">
+              <figcaption class="rails__meta">
+                <span class="badge badge--neutral">{railCase.langLabel}</span>
+                <span class="badge badge--neutral badge--pill">{railCase.rail}</span>
+              </figcaption>
+              <blockquote class="rails__quote" lang={railCase.lang}>
+                <p class="mono">{railCase.text}</p>
+              </blockquote>
+            </figure>
+          ))
+        }
+      </div>
+
+      <p class="rails__closing">{RAILS.closing}</p>
+    </FadeContent>
+  </div>
+</section>
+
+<style>
+  .rails__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 60em) {
+    .rails__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .rails__meta {
+    display: flex;
+    gap: var(--space-2);
+    margin-block-end: var(--space-4);
+  }
+
+  /* Badge default (secondary on raised surface) is 3.7:1 — below AA. */
+  .rails__meta .badge {
+    color: var(--color-text-primary);
+  }
+
+  .rails__quote p {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-body);
+    line-height: var(--line-height-loose);
+  }
+
+  .rails__closing {
+    margin-block-start: var(--space-8);
+    max-inline-size: 62ch;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-body-lg);
+  }
+</style>

@@ -1,0 +1,84 @@
+---
+import '../styles/global.css';
+import 'lenis/dist/lenis.css';
+import { SITE } from '../site.config';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title = SITE.title, description = SITE.description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content={SITE.themeColor} />
+    <link rel="canonical" href={SITE.url} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <!-- Open Graph / Twitter (text-based fallback — no image asset yet) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={SITE.url} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <slot />
+    <script>
+      // Motion layer (Lenis smooth scroll + GSAP reveals) is pure enhancement:
+      // dynamic-import it at first idle so module evaluation and setup stay
+      // out of the critical load path.
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      async function initMotion() {
+        const [{ default: Lenis }, { gsap }, { ScrollTrigger }] = await Promise.all([
+          import('lenis'),
+          import('gsap'),
+          import('gsap/ScrollTrigger'),
+        ]);
+
+        // Smooth scrolling. autoRaf drives its own loop. Lenis reads the CSS
+        // scroll-margin on anchor targets natively, so no offset is needed —
+        // targets land below the sticky header on both the smooth and the
+        // native (reduced-motion) paths.
+        new Lenis({ autoRaf: true, anchors: true });
+
+        // Subtle scroll reveals — progressive enhancement only: everything is
+        // fully visible in base CSS; GSAP hides it at script-run time and
+        // reveals once per element on entry.
+        gsap.registerPlugin(ScrollTrigger);
+        document.querySelectorAll<HTMLElement>('[data-reveal]').forEach(el => {
+          const targets = 'revealChildren' in el.dataset ? Array.from(el.children) : [el];
+          gsap.from(targets, {
+            autoAlpha: 0,
+            y: 18,
+            duration: 0.7,
+            ease: 'power2.out',
+            stagger: 0.08,
+            scrollTrigger: { trigger: el, start: 'top 88%', once: true },
+          });
+        });
+      }
+
+      if (!prefersReducedMotion) {
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(() => initMotion(), { timeout: 2000 });
+        } else {
+          setTimeout(initMotion, 300);
+        }
+      }
+    </script>
+  </body>
+</html>

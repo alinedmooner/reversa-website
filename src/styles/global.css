@@ -1,0 +1,142 @@
+/* global.css — site entry stylesheet.
+
+   Imports the ds design system verbatim: ds/ds.css declares the cascade
+   layers (tokens first) and pulls in every ds file in order. Everything
+   below is written OUTSIDE any layer, so it overrides ds cleanly without
+   specificity games (see ds/README.md).
+
+   ds defines no breakpoint tokens; this site derives two content-driven
+   breakpoints used consistently everywhere:
+     ≥ 40em (640px)  — two-column stats, two-column how-grid
+     ≥ 60em (960px)  — four-column how-grid, side-by-side case cards */
+
+@import '../../ds/ds.css';
+
+/* ---------- Font delivery override ----------
+   ds ships unsubsetted TTFs (~880 KB for Inter alone). These woff2 subsets
+   were generated from the very same ds TTFs (fontTools; latin + latin-ext +
+   general punctuation) and are declared under the same family names AFTER
+   the ds import, so they win the @font-face cascade — the TTFs are never
+   downloaded. ds itself stays untouched. */
+@font-face {
+  font-family: 'Inter';
+  src:
+    url('/fonts/inter-var-latin.woff2') format('woff2-variations'),
+    url('/fonts/inter-var-latin.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Tiempos';
+  src: url('/fonts/spectral-regular-latin.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Metric-matched local fallbacks: the swap to the web font then changes no
+   geometry, so there is no layout shift and no late LCP re-candidate. */
+@font-face {
+  font-family: 'Inter Fallback';
+  src: local('Arial'), local('Liberation Sans'), local('Helvetica');
+  size-adjust: 107%;
+  ascent-override: 90.44%;
+  descent-override: 22.52%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Tiempos Fallback';
+  src: local('Georgia');
+  size-adjust: 96%;
+  ascent-override: 103%;
+  descent-override: 26%;
+  line-gap-override: 0%;
+}
+
+:root {
+  /* Token-level re-theme (the ds-sanctioned override mechanism): slot the
+     metric-matched fallbacks behind the real families. */
+  --font-family-sans: 'Inter', 'Inter Fallback', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-family-serif: 'Tiempos', 'Tiempos Fallback', Georgia, serif;
+}
+
+:root {
+  --header-height: 3.5rem; /* sticky header */
+  --container-max: 70rem;
+  --section-pad: clamp(var(--space-12), 12vh, 7.5rem);
+
+  /* Hero fallback / under-canvas glow, mixed from ds accents. */
+  --hero-glow-strong: color-mix(in srgb, var(--color-accent) 22%, transparent);
+  --hero-glow-soft: color-mix(in srgb, var(--color-accent-purple) 13%, transparent);
+
+  /* Spotlight tint for the how-it-works cards. */
+  --spot-accent: color-mix(in srgb, var(--color-accent) 14%, transparent);
+}
+
+/* ---------- Layout primitives ---------- */
+.container {
+  inline-size: min(var(--container-max), 100% - (var(--space-4) * 2));
+  margin-inline: auto;
+}
+
+@media (min-width: 40em) {
+  .container {
+    inline-size: min(var(--container-max), 100% - (var(--space-8) * 2));
+  }
+}
+
+.section {
+  padding-block: var(--section-pad);
+}
+
+.section + .section {
+  border-block-start: 1px solid var(--color-border-subtle);
+}
+
+.section-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-block-end: var(--space-8);
+}
+
+/* Sans section headings, one step up from the ds h2 default. */
+.section-title {
+  font-size: var(--font-size-h1);
+  letter-spacing: var(--letter-spacing-display);
+}
+
+/* ds .btn--primary is white-on-accent at 4.36:1 — just under AA (4.5:1).
+   Darken the fill a touch via color-mix on the token; visually identical,
+   clears ~5.5:1. */
+.btn--primary {
+  background: color-mix(in srgb, var(--color-accent) 85%, black);
+  border-color: color-mix(in srgb, var(--color-accent) 85%, black);
+}
+
+/* Anchor targets land below the sticky header (native + reduced-motion path;
+   Lenis mirrors this offset for smooth scrolling). */
+[id] {
+  scroll-margin-block-start: calc(var(--header-height) + var(--space-4));
+}
+
+/* ---------- Skip link (a11y) ---------- */
+.skip-link {
+  position: fixed;
+  inset-block-start: var(--space-3);
+  inset-inline-start: var(--space-3);
+  z-index: var(--z-toast);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-bright);
+  transform: translateY(calc(-100% - var(--space-6)));
+}
+
+.skip-link:focus-visible {
+  transform: none;
+}

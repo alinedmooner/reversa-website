@@ -1,0 +1,4 @@
+.shiny-text {
+  color: var(--color-text-secondary, #b5b5b5);
+  display: inline-block;
+}

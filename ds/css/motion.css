@@ -1,0 +1,229 @@
+/* ============================================================
+   motion.css — animation foundation
+   ------------------------------------------------------------
+   Tokens (durations + easings), keyframes, and utility classes.
+   Pure CSS, no JS required. Vanilla — drop this into any
+   project and import once.
+
+   Philosophy: quiet by default. Animations confirm state or
+   draw attention to one thing at a time. Nothing moves
+   horizontally or scales unless explicitly invoked. All
+   utilities honor `prefers-reduced-motion`.
+   ============================================================ */
+
+:root {
+  /* ---------- Duration ----------
+     Five steps. Most product motion uses --dur-2 (160ms).
+     Anything ≥--dur-5 should be reserved for narrative moments
+     (modal entry, full-screen state changes).
+  */
+  --dur-1: 80ms; /* @kind other */    /* micro: focus ring, caret, hairline shifts */
+  --dur-2: 160ms; /* @kind other */   /* default: hover, color, border, small fades */
+  --dur-3: 240ms; /* @kind other */   /* entry: popovers, dropdowns */
+  --dur-4: 360ms; /* @kind other */   /* modal scale + fade, toast slide */
+  --dur-5: 600ms; /* @kind other */   /* sparkline draw, page transition */
+  --dur-pulse: 2.4s; /* @kind other */     /* live-data dot heartbeat */
+  --dur-shimmer: 1.6s; /* @kind other */   /* skeleton sweep */
+  --dur-flash: 900ms; /* @kind other */    /* price tick highlight fade */
+
+  /* ---------- Easing ----------
+     Three product-grade curves. No bouncy springs — the brand
+     reads as composed. --ease-emph adds a subtle landing for
+     elements entering the viewport (modal, toast).
+  */
+  --ease-out:    cubic-bezier(0.2, 0.7, 0.2, 1); /* @kind other */    /* default exit */
+  --ease-in-out: cubic-bezier(0.5, 0, 0.2, 1); /* @kind other */      /* in/out symmetric */
+  --ease-emph:   cubic-bezier(0.16, 1, 0.3, 1); /* @kind other */     /* emphasized landing */
+  --ease-linear: linear; /* @kind other */                            /* pulse, shimmer */
+
+  /* ---------- Default transition ----------
+     Use `transition: var(--t-base)` to get the system's
+     standard hover/state transition on color + border + fill.
+  */
+  --t-base: background-color var(--dur-2) var(--ease-out),
+            border-color     var(--dur-2) var(--ease-out),
+            color            var(--dur-2) var(--ease-out),
+            box-shadow       var(--dur-2) var(--ease-out),
+            opacity          var(--dur-2) var(--ease-out); /* @kind other */
+}
+
+/* ============================================================
+   Keyframes
+   ============================================================ */
+
+/* Fade in only. The brand never animates position/scale without
+   reason — fade is the default entry. */
+@keyframes m-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Modal / popover entry — fade + 2% scale-up settle */
+@keyframes m-pop-in {
+  from { opacity: 0; transform: scale(0.98); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Slide-up: toast / drawer / floating-dock entry */
+@keyframes m-slide-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Slide-down: dropdowns, command palette */
+@keyframes m-slide-down {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Live-data pulse — a soft heartbeat dot. Two-stage so the
+   ring expands smoothly while the dot stays steady. */
+@keyframes m-pulse-ring {
+  0%   { transform: scale(1);   opacity: 0.55; }
+  70%  { transform: scale(2.4); opacity: 0; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+
+/* Skeleton shimmer — diagonal gradient sweep */
+@keyframes m-shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+/* Number tick / price change flash. Brief background tint that
+   fades back to the surface color. Two variants below. */
+@keyframes m-flash-up {
+  0%   { background-color: rgba(63, 179, 127, 0.22); }
+  100% { background-color: transparent; }
+}
+@keyframes m-flash-down {
+  0%   { background-color: rgba(217, 75, 63, 0.22); }
+  100% { background-color: transparent; }
+}
+
+/* Sparkline draw-on — stroke-dashoffset starts at full length,
+   eases down to zero. Caller must set --m-path-len in CSS. */
+@keyframes m-draw {
+  from { stroke-dashoffset: var(--m-path-len, 1000); }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* Spinner — a single thin arc rotating */
+@keyframes m-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Caret blink */
+@keyframes m-caret {
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+/* ============================================================
+   Utility classes
+   Apply directly to elements. All animations run once unless
+   the class name ends in `-loop`.
+   ============================================================ */
+
+.m-fade-in   { animation: m-fade-in   var(--dur-3) var(--ease-out) both; }
+.m-pop-in    { animation: m-pop-in    var(--dur-4) var(--ease-emph) both; transform-origin: center; }
+.m-slide-up  { animation: m-slide-up  var(--dur-4) var(--ease-emph) both; }
+.m-slide-down{ animation: m-slide-down var(--dur-3) var(--ease-emph) both; }
+
+.m-flash-up   { animation: m-flash-up   var(--dur-flash) var(--ease-out) both; }
+.m-flash-down { animation: m-flash-down var(--dur-flash) var(--ease-out) both; }
+
+.m-shimmer-loop {
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.045) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: m-shimmer var(--dur-shimmer) var(--ease-linear) infinite;
+}
+
+.m-spinner-loop {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line, #282828);
+  border-top-color: var(--fg-bright, #ffffff);
+  animation: m-spin 720ms var(--ease-linear) infinite;
+  box-sizing: border-box;
+}
+
+.m-caret-loop {
+  display: inline-block;
+  width: 1px;
+  height: 1em;
+  background: currentColor;
+  vertical-align: text-bottom;
+  animation: m-caret 1.05s steps(1, end) infinite;
+}
+
+/* Stagger helper. Set --m-i on each child (0, 1, 2…) and use
+   .m-stagger on the parent to delay each child's animation. */
+.m-stagger > * {
+  animation-delay: calc(var(--m-i, 0) * 60ms);
+}
+
+/* Live-data dot — wrap a 6px filled circle in <span class="m-dot">.
+   Renders dot + an expanding ring that pulses on a 2.4s loop. */
+.m-dot {
+  position: relative;
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent, #E8264A);
+  vertical-align: middle;
+}
+.m-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--accent, #E8264A);
+  animation: m-pulse-ring var(--dur-pulse) var(--ease-out) infinite;
+  pointer-events: none;
+}
+.m-dot--gain { background: var(--gain, #3FB37F); }
+.m-dot--gain::after { background: var(--gain, #3FB37F); }
+.m-dot--loss { background: var(--loss, #D94B3F); }
+.m-dot--loss::after { background: var(--loss, #D94B3F); }
+
+/* Sparkline path. Add class to the <path>; set stroke-dasharray
+   inline or via --m-path-len. */
+.m-draw {
+  stroke-dasharray: var(--m-path-len, 1000);
+  animation: m-draw var(--dur-5) var(--ease-out) both;
+}
+
+/* ============================================================
+   Reduced motion — honor the OS-level preference.
+   Static reveals (fade-in only) still happen; movement and
+   looped pulses stop.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-1: 0.01ms; /* @kind other */
+    --dur-2: 0.01ms; /* @kind other */
+    --dur-3: 0.01ms; /* @kind other */
+    --dur-4: 0.01ms; /* @kind other */
+    --dur-5: 0.01ms; /* @kind other */
+  }
+  .m-pop-in,
+  .m-slide-up,
+  .m-slide-down { transform: none !important; }
+  .m-dot::after,
+  .m-shimmer-loop,
+  .m-spinner-loop,
+  .m-caret-loop { animation: none !important; }
+  .m-flash-up,
+  .m-flash-down { animation: none !important; }
+  .m-draw { stroke-dashoffset: 0 !important; animation: none !important; }
+}

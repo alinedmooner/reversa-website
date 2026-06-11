@@ -1,0 +1,83 @@
+---
+import FadeContent from '../FadeContent/FadeContent';
+import SpotlightCard from '../SpotlightCard/SpotlightCard';
+import { HOW } from '../../site.config';
+---
+
+<section id="how" class="section">
+  <div class="container">
+    <FadeContent client:visible duration={700}>
+      <div class="section-head">
+        <p class="eyebrow">{HOW.eyebrow}</p>
+        <h2 class="section-title">{HOW.heading}</h2>
+      </div>
+    </FadeContent>
+
+    <ol class="how__grid" role="list" data-reveal data-reveal-children>
+      {
+        HOW.steps.map((step, index) => (
+          <li class="how__cell">
+            <SpotlightCard client:visible className="how-card" spotlightColor="var(--spot-accent)">
+              <p class="how-card__num mono" aria-hidden="true">
+                {String(index + 1).padStart(2, '0')}
+              </p>
+              <h3 class="how-card__title">{step.title}</h3>
+              <p class="how-card__desc">{step.description}</p>
+            </SpotlightCard>
+          </li>
+        ))
+      }
+    </ol>
+
+    <p class="how__closing">{HOW.closing}</p>
+  </div>
+</section>
+
+<style>
+  .how__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 40em) {
+    .how__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 60em) {
+    .how__grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .how__cell :global(.how-card) {
+    block-size: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .how-card__num {
+    color: var(--color-text-tertiary);
+    font-size: var(--font-size-caption);
+    letter-spacing: var(--letter-spacing-eyebrow);
+  }
+
+  .how-card__title {
+    color: var(--color-text-bright);
+  }
+
+  .how-card__desc {
+    color: var(--color-text-tertiary);
+    text-wrap: pretty;
+  }
+
+  .how__closing {
+    margin-block-start: var(--space-8);
+    color: var(--color-text-secondary);
+    text-align: center;
+    font-size: var(--font-size-body-lg);
+  }
+</style>

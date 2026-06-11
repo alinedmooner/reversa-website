@@ -1,0 +1,117 @@
+---
+import AuroraBackground from '../AuroraBackground';
+import BlurText from '../BlurText/BlurText';
+import ShinyText from '../ShinyText/ShinyText';
+import { HERO } from '../../site.config';
+
+const btnVariant: Record<string, string> = {
+  primary: 'btn btn--primary',
+  secondary: 'btn btn--secondary',
+  ghost: 'btn btn--ghost',
+};
+
+const external = (href: string) =>
+  href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {};
+---
+
+<section id="top" class="hero">
+  <div class="hero__bg" aria-hidden="true">
+    <div class="hero__fallback"></div>
+    <AuroraBackground client:only="react" />
+  </div>
+  <div class="container hero__content">
+    <h1 class="display display-xl hero__title">
+      <BlurText client:load text={HERO.title} animateBy="letters" delay={90} className="hero-title-anim" />
+    </h1>
+    <p class="hero__tagline">
+      <ShinyText client:load text={HERO.tagline} speed={3.5} delay={1.5} className="hero-tagline-anim" />
+    </p>
+    <p class="hero__subline">{HERO.subline}</p>
+    <div class="hero__ctas">
+      {HERO.ctas.map(cta => (
+        <a class={btnVariant[cta.variant]} href={cta.href} {...external(cta.href)}>
+          {cta.label}
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-block-size: calc(100svh - var(--header-height));
+    padding-block: var(--section-pad);
+    overflow: hidden;
+  }
+
+  .hero__bg {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* Static ds-gradient fallback: visible while the WebGL canvas loads and
+     permanently under prefers-reduced-motion (Aurora never mounts then). */
+  .hero__fallback {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(110% 70% at 50% 0%, var(--hero-glow-strong), transparent 65%),
+      radial-gradient(70% 50% at 82% 8%, var(--hero-glow-soft), transparent 70%),
+      var(--color-background);
+  }
+
+  .hero__bg :global(.aurora-container) {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* Settle the aurora into the page background. */
+  .hero__bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 55%, var(--color-background) 96%);
+  }
+
+  .hero__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-5);
+    text-align: center;
+  }
+
+  .hero__title {
+    font-size: clamp(var(--font-size-display-lg), 11vw, var(--font-size-display-xl));
+  }
+
+  .hero__title :global(.hero-title-anim) {
+    justify-content: center;
+  }
+
+  .hero__tagline {
+    font-size: clamp(var(--font-size-lead), 2.8vw, var(--font-size-h2));
+    font-weight: var(--font-weight-medium);
+    letter-spacing: var(--letter-spacing-heading);
+  }
+
+  .hero__subline {
+    max-inline-size: 44ch;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-body-lg);
+    text-wrap: balance;
+  }
+
+  .hero__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-3);
+    margin-block-start: var(--space-4);
+  }
+</style>
