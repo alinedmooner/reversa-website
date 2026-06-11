@@ -1,5 +1,4 @@
 ---
-import GradientText from '../GradientText/GradientText';
 import { FOOTER, NAV } from '../../site.config';
 
 const external = (href: string) =>
@@ -8,9 +7,11 @@ const external = (href: string) =>
 
 <footer class="site-footer">
   <div class="container site-footer__inner">
-    <GradientText client:visible className="site-footer__line" animationSpeed={6}>
-      {FOOTER.line}
-    </GradientText>
+    {/* Structure and keyframes come from GradientText.css; the gradient
+        itself and the duration live in .gradient-line below. */}
+    <div class="animated-gradient-text site-footer__line">
+      <div class="text-content gradient-line">{FOOTER.line}</div>
+    </div>
 
     <div class="site-footer__meta">
       <p class="site-footer__org">
@@ -62,6 +63,26 @@ const external = (href: string) =>
     font-size: clamp(var(--font-size-lead), 2.4vw, var(--font-size-h2));
     font-weight: var(--font-weight-medium);
     letter-spacing: var(--letter-spacing-heading);
+  }
+
+  .gradient-line {
+    background-image: linear-gradient(
+      to right,
+      var(--color-accent),
+      var(--color-accent-orange),
+      var(--color-accent-purple),
+      var(--color-accent)
+    );
+    background-size: 300% 100%;
+    /* The keyframes (0% → 100% → 0%) come from GradientText.css; 12s is the
+       full yoyo cycle: 6s up + 6s back, matching the old animationSpeed=6. */
+    animation-duration: 12s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gradient-line {
+      animation: none;
+    }
   }
 
   .site-footer__meta {

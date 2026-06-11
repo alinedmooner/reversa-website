@@ -1,35 +1,26 @@
 ---
-import DecryptedText from '../DecryptedText/DecryptedText';
-import FadeContent from '../FadeContent/FadeContent';
 import { RESEARCH } from '../../site.config';
 ---
 
 <section id="research" class="section">
   <div class="container">
-    {/* The heading sits outside FadeContent: its decrypt animation is its
-        own reveal, and FadeContent's visibility:hidden would otherwise let
-        the scramble play unseen (IntersectionObserver fires on geometry,
-        not visibility). */}
+    {/* The heading sits outside the data-reveal wrapper: its decrypt
+        animation is its own reveal, and the reveal system's
+        visibility:hidden would otherwise let the scramble play unseen
+        (IntersectionObserver fires on geometry, not visibility). */}
     <div class="section-head">
       <p class="eyebrow">{RESEARCH.eyebrow}</p>
       <h2 class="display research__heading">
-        <DecryptedText
-          client:visible
-          text={RESEARCH.heading}
-          animateOn="view"
-          sequential
-          speed={40}
-          encryptedClassName="research__scramble"
-        />
+        {/* Always the real text for screen readers — the scrambled version
+            is visual-only. */}
+        <span class="visually-hidden">{RESEARCH.heading}</span><span data-decrypt aria-hidden="true">{RESEARCH.heading}</span>
       </h2>
     </div>
-    <FadeContent client:visible duration={700}>
-      <div class="research__copy">
-        {RESEARCH.paragraphs.map(paragraph => <p>{paragraph}</p>)}
-      </div>
-    </FadeContent>
+    <div class="research__copy" data-reveal>
+      {RESEARCH.paragraphs.map(paragraph => <p>{paragraph}</p>)}
+    </div>
 
-    <FadeContent client:visible duration={700} delay={100}>
+    <div data-reveal>
       {/* tabindex: the horizontal scroll region must be keyboard-operable
           (Safari does not make scrollers focusable on its own). */}
       <div class="research__table-wrap" tabindex="0" role="region" aria-label={RESEARCH.table.ariaLabel}>
@@ -57,9 +48,61 @@ import { RESEARCH } from '../../site.config';
       <p class="research__link">
         <a href={RESEARCH.link.href} target="_blank" rel="noopener noreferrer">{RESEARCH.link.label}</a>
       </p>
-    </FadeContent>
+    </div>
   </div>
 </section>
+
+<script>
+  // Sequential decrypt for the heading: every 40ms one more leading
+  // character settles while the remainder keeps scrambling. Spaces stay
+  // spaces so the line never reflows.
+  const CHARSET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+';
+
+  const scramble = (text: string) =>
+    text.replace(/[^ ]/g, () => CHARSET[Math.floor(Math.random() * CHARSET.length)]);
+
+  const decrypt = (el: HTMLElement) => {
+    const text = el.textContent ?? '';
+    const plain = document.createElement('span');
+    const scrambled = document.createElement('span');
+    scrambled.className = 'research__scramble';
+    el.textContent = '';
+    el.append(plain, scrambled);
+
+    let revealed = 0;
+    const render = () => {
+      plain.textContent = text.slice(0, revealed);
+      scrambled.textContent = scramble(text.slice(revealed));
+    };
+    render();
+
+    const interval = setInterval(() => {
+      revealed += 1;
+      if (revealed >= text.length) {
+        clearInterval(interval);
+        el.textContent = text;
+        return;
+      }
+      render();
+    }, 40);
+  };
+
+  // Reduced motion: never start — the server-rendered plain text stays.
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const observer = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            observer.unobserve(entry.target);
+            decrypt(entry.target as HTMLElement);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+    document.querySelectorAll<HTMLElement>('[data-decrypt]').forEach(el => observer.observe(el));
+  }
+</script>
 
 <style>
   /* Second (and last) serif display moment on the page. */

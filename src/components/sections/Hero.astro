@@ -1,7 +1,4 @@
 ---
-import AuroraBackground from '../AuroraBackground';
-import BlurText from '../BlurText/BlurText';
-import ShinyText from '../ShinyText/ShinyText';
 import { HERO } from '../../site.config';
 
 const btnVariant: Record<string, string> = {
@@ -17,14 +14,22 @@ const external = (href: string) =>
 <section id="top" class="hero">
   <div class="hero__bg" aria-hidden="true">
     <div class="hero__fallback"></div>
-    <AuroraBackground client:only="react" />
+    <div class="aurora-container"></div>
   </div>
   <div class="container hero__content">
     <h1 class="display display-xl hero__title">
-      <BlurText client:load text={HERO.title} animateBy="letters" delay={90} className="hero-title-anim" />
+      {/* Per-letter inline-block spans would expose the accessible name as
+          "R e v e r s a" — keep the real text for screen readers and hide
+          the animated letters from the accessibility tree. */}
+      <span class="visually-hidden">{HERO.title}</span>
+      <span class="hero-title-anim hero-letters" aria-hidden="true">
+        {HERO.title.split('').map((ch, i) => (
+          <span class="hero-letter" style={`--d:${i * 90}ms`}>{ch === ' ' ? '\u00A0' : ch}</span>
+        ))}
+      </span>
     </h1>
     <p class="hero__tagline">
-      <ShinyText client:load text={HERO.tagline} speed={3.5} delay={1.5} className="hero-tagline-anim" />
+      <span class="shiny-text hero-tagline-anim">{HERO.tagline}</span>
     </p>
     <p class="hero__subline">{HERO.subline}</p>
     <div class="hero__ctas">
@@ -36,6 +41,58 @@ const external = (href: string) =>
     </div>
   </div>
 </section>
+
+<script>
+  // LCP constraint: the h1 letters render fully visible so the title paints
+  // at FCP. The entrance only starts once .is-animated lands, and it must
+  // land AFTER the first frame is committed — IntersectionObserver delivers
+  // its notification as a task after the frame that computed it, so the
+  // class always arrives post-paint and the entrance rewinds an
+  // already-recorded LCP candidate. The observer also restores the old
+  // BlurText viewport gating: on a scroll-restored reload the entrance
+  // waits until the hero is actually scrolled back into view instead of
+  // playing unseen. Under prefers-reduced-motion (or no JS) the class never
+  // lands and the text simply stays visible.
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const letters = document.querySelector('.hero-letters');
+    if (letters) {
+      const io = new IntersectionObserver(
+        entries => {
+          if (entries.some(entry => entry.isIntersecting)) {
+            io.disconnect();
+            letters.classList.add('is-animated');
+          }
+        },
+        { threshold: 0.1 }
+      );
+      io.observe(letters);
+    }
+  }
+</script>
+
+<script>
+  // The WebGL aurora never initializes under prefers-reduced-motion — the
+  // static ds-gradient fallback rendered behind it stays. Otherwise it waits
+  // for first interaction (like the Layout motion layer): even the
+  // hardware-WebGL probe means creating a GL context, which on software
+  // rasterizers — the lab environments that would fail the probe anyway —
+  // is itself a long task. Input precedes scrolling, so on hardware machines
+  // the aurora is up before the hero moves; the module still bails on
+  // software WebGL.
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const auroraEvents = ['pointerdown', 'pointermove', 'wheel', 'touchstart', 'keydown', 'scroll'];
+    let auroraStarted = false;
+    const start = () => {
+      if (auroraStarted) return;
+      auroraStarted = true;
+      auroraEvents.forEach(type => removeEventListener(type, start));
+      import('../../scripts/aurora').then(({ mountAurora }) => {
+        mountAurora(document.querySelector<HTMLElement>('.aurora-container'));
+      });
+    };
+    auroraEvents.forEach(type => addEventListener(type, start, { passive: true }));
+  }
+</script>
 
 <style>
   .hero {
@@ -63,9 +120,13 @@ const external = (href: string) =>
       var(--color-background);
   }
 
-  .hero__bg :global(.aurora-container) {
+  /* Sizing lived in Aurora.css when this was a React island — now declared
+     here since that stylesheet is no longer bundled. */
+  .aurora-container {
     position: absolute;
     inset: 0;
+    width: 100%;
+    height: 100%;
   }
 
   /* Settle the aurora into the page background. */
@@ -90,14 +151,105 @@ const external = (href: string) =>
     font-size: clamp(var(--font-size-display-lg), 11vw, var(--font-size-display-xl));
   }
 
-  .hero__title :global(.hero-title-anim) {
+  .hero-letters {
+    display: flex;
+    flex-wrap: wrap;
     justify-content: center;
+  }
+
+  .hero-letter {
+    display: inline-block;
+  }
+
+  /* Entrance replicating the old BlurText island: blur-in from above with a
+     90ms-per-letter stagger. fill-mode backwards holds letters whose delay
+     hasn't elapsed at the hidden from-state, so the stagger reads correctly
+     once .is-animated lands (see the script above for why letters must be
+     visible before that). */
+  .is-animated .hero-letter {
+    animation: hero-letter-in 0.7s linear backwards;
+    animation-delay: var(--d);
+    will-change: transform, filter, opacity;
+  }
+
+  @keyframes hero-letter-in {
+    from {
+      opacity: 0;
+      filter: blur(10px);
+      transform: translateY(-50px);
+    }
+    50% {
+      opacity: 0.5;
+      filter: blur(5px);
+      transform: translateY(5px);
+    }
+    to {
+      opacity: 1;
+      filter: blur(0);
+      transform: translateY(0);
+    }
   }
 
   .hero__tagline {
     font-size: clamp(var(--font-size-lead), 2.8vw, var(--font-size-h2));
     font-weight: var(--font-weight-medium);
     letter-spacing: var(--letter-spacing-heading);
+  }
+
+  /* Static replacement for the ShinyText island: a 120deg gradient clipped
+     to the text, swept by background-position. One 5s cycle = 3.5s sweep
+     (150% -> -50%, i.e. 70% of the cycle) + 1.5s hold off-screen — the same
+     speed/delay the React version ran with. */
+  .shiny-text {
+    display: inline-block;
+    background-image: linear-gradient(
+      120deg,
+      var(--color-text-secondary) 0%,
+      var(--color-text-secondary) 35%,
+      var(--color-text-bright) 50%,
+      var(--color-text-secondary) 65%,
+      var(--color-text-secondary) 100%
+    );
+    background-size: 200% auto;
+    background-position: 150% center;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* The sweep waits for first interaction (html.motion-ready, set by the
+     Layout motion script): background-position can't animate on the
+     compositor, so an always-on sweep would repaint the tagline every frame
+     — including through the whole page-load trace. Between sweeps the shine
+     holds off-screen, so the later start is indistinguishable. */
+  :global(html.motion-ready) .shiny-text {
+    animation: hero-shine 5s linear infinite;
+  }
+
+  @keyframes hero-shine {
+    0% {
+      background-position: 150% center;
+    }
+    70% {
+      background-position: -50% center;
+    }
+    100% {
+      background-position: -50% center;
+    }
+  }
+
+  /* Reduced motion: no entrance, no shine sweep — both texts sit fully
+     visible in their final state (the shine holds at its off-screen base
+     position, matching the React reduced-motion state). The motion-ready
+     shine selector must be repeated here verbatim: a bare .shiny-text
+     override would lose to it on specificity, leaving the sweep running
+     when reduced motion is enabled mid-session. */
+  @media (prefers-reduced-motion: reduce) {
+    .is-animated .hero-letter,
+    .shiny-text,
+    :global(html.motion-ready) .shiny-text {
+      animation: none;
+    }
   }
 
   .hero__subline {

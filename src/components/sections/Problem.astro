@@ -1,12 +1,10 @@
 ---
-import CountUp from '../CountUp/CountUp';
-import FadeContent from '../FadeContent/FadeContent';
 import { PROBLEM } from '../../site.config';
 ---
 
 <section id="problem" class="section">
   <div class="container">
-    <FadeContent client:visible duration={700}>
+    <div data-reveal>
       <div class="section-head">
         <p class="eyebrow">{PROBLEM.eyebrow}</p>
         <h2 class="section-title">{PROBLEM.heading}</h2>
@@ -14,20 +12,17 @@ import { PROBLEM } from '../../site.config';
       <div class="problem__copy">
         {PROBLEM.paragraphs.map(paragraph => <p>{paragraph}</p>)}
       </div>
-    </FadeContent>
+    </div>
 
     <ul class="problem__stats" role="list" data-reveal data-reveal-children>
       {
         PROBLEM.stats.map(stat => (
           <li class="stat">
             <p class="stat__value">
-              <CountUp
-                client:visible={{ rootMargin: '200px' }}
-                to={stat.value}
-                duration={1.8}
-                separator=","
-                className="tabular"
-              />{stat.suffix && <span class="stat__suffix">{stat.suffix}</span>}
+              {/* Screen readers always get the stable final value — the
+                  animating span is out of the accessibility tree so nobody
+                  hears "0" mid-count. */}
+              <span class="visually-hidden">{String(stat.value)}</span><span class="tabular" data-countup={stat.value} aria-hidden="true">{String(stat.value)}</span>{stat.suffix && <span class="stat__suffix">{stat.suffix}</span>}
             </p>
             <p class="stat__label">{stat.label}</p>
             <p class="stat__source caption">{stat.source}</p>
@@ -37,6 +32,53 @@ import { PROBLEM } from '../../site.config';
     </ul>
   </div>
 </section>
+
+<script>
+  // Count-up enhancement. The server renders the final value, and under
+  // prefers-reduced-motion it simply stays — same behavior as before.
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const DURATION = 1800;
+
+    const animate = (el: HTMLElement) => {
+      const to = parseFloat(el.dataset.countup ?? '0');
+      const decimals = (String(to).split('.')[1] ?? '').length;
+      const formatter = new Intl.NumberFormat('en-US', {
+        useGrouping: true,
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+      });
+
+      el.textContent = formatter.format(0);
+      const start = performance.now();
+      const tick = (now: number) => {
+        const progress = Math.min((now - start) / DURATION, 1);
+        if (progress < 1) {
+          const eased = 1 - (1 - progress) ** 3; // ease-out cubic
+          el.textContent = formatter.format(to * eased);
+          requestAnimationFrame(tick);
+        } else {
+          el.textContent = formatter.format(to);
+        }
+      };
+      requestAnimationFrame(tick);
+    };
+
+    // The text is never touched before the observer fires, so a fast scroll
+    // past the section can never strand a stat at 0. No rootMargin: the old
+    // island's 200px margin only pre-warmed hydration — the count itself
+    // started when the stat actually entered the viewport, as here.
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          observer.unobserve(entry.target);
+          animate(entry.target as HTMLElement);
+        }
+      });
+    });
+
+    document.querySelectorAll<HTMLElement>('[data-countup]').forEach(el => observer.observe(el));
+  }
+</script>
 
 <style>
   .problem__copy {

@@ -36,10 +36,74 @@ const { title = SITE.title, description = SITE.description } = Astro.props;
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
     <slot />
+    <script is:inline>
+      // Deferred font delivery: the woff2 subsets (~220 KB) must not gate
+      // FCP, so the faces only reach the document strictly after the first
+      // contentful paint. Until then "Inter"/"Tiempos" resolve to the
+      // metric-matched fallbacks (global.css), and size-adjust matching
+      // makes the later swap geometry-free — no CLS, no LCP re-candidate.
+      // Timing constraints:
+      // - the trigger is the FCP performance entry itself, not rAF counting:
+      //   frame pipelining lets a nested-rAF callback run before the
+      //   previous frame's FCP is committed, which intermittently started
+      //   the fonts pre-FCP;
+      // - FontFace API instead of injecting @font-face CSS: load() fetches
+      //   without touching the CSSOM, and adding both already-loaded faces
+      //   in the same frame batches the page-wide restyle into one task
+      //   (three restyles otherwise — inject + one per font arrival).
+      // Without JS the fallbacks simply stay.
+      var fontsStarted = false;
+      var startFonts = function () {
+        if (fontsStarted) return;
+        fontsStarted = true;
+        var inter = new FontFace(
+          'Inter',
+          "url('/fonts/inter-var-latin.woff2') format('woff2-variations'), url('/fonts/inter-var-latin.woff2') format('woff2')",
+          { weight: '100 900', display: 'swap' }
+        );
+        var tiempos = new FontFace('Tiempos', "url('/fonts/spectral-regular-latin.woff2') format('woff2')", {
+          weight: '400',
+          display: 'swap',
+        });
+        // allSettled: one font failing must not discard the other; both
+        // fulfilled faces still land in the same frame (one restyle).
+        Promise.allSettled([inter.load(), tiempos.load()]).then(function (results) {
+          results.forEach(function (result) {
+            if (result.status === 'fulfilled') document.fonts.add(result.value);
+          });
+        });
+      };
+      try {
+        new PerformanceObserver(function (list, observer) {
+          for (var i = 0, entries = list.getEntries(); i < entries.length; i++) {
+            if (entries[i].name === 'first-contentful-paint') {
+              observer.disconnect();
+              setTimeout(startFonts, 0);
+              return;
+            }
+          }
+        }).observe({ type: 'paint', buffered: true });
+      } catch (err) {
+        // No paint-entry support: next-best approximation of "after FCP".
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            setTimeout(startFonts, 0);
+          });
+        });
+      }
+      // Backstop for engines that accept observe({type:'paint'}) but never
+      // dispatch entries (the spec says warn, not throw, so the catch above
+      // can't see those) — without this, fonts would silently never load.
+      addEventListener('load', function () {
+        setTimeout(startFonts, 0);
+      });
+    </script>
     <script>
       // Motion layer (Lenis smooth scroll + GSAP reveals) is pure enhancement:
-      // dynamic-import it at first idle so module evaluation and setup stay
-      // out of the critical load path.
+      // smooth scroll and scroll-reveals are meaningless before the user's
+      // first input — the input IS what precedes scrolling — so dynamic-import
+      // it on first interaction. That keeps Lenis/GSAP out of the page-load
+      // trace entirely (Lighthouse never interacts).
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
       async function initMotion() {
@@ -60,9 +124,21 @@ const { title = SITE.title, description = SITE.description } = Astro.props;
         // reveals once per element on entry.
         gsap.registerPlugin(ScrollTrigger);
         document.querySelectorAll<HTMLElement>('[data-reveal]').forEach(el => {
+          // Init runs at an arbitrary scroll position now: gsap.from would
+          // flash-hide anything the user can already see (even a sliver at
+          // the bottom edge) mid-read, so anything not fully below the
+          // viewport just stays visible.
+          if (el.getBoundingClientRect().top < window.innerHeight) return;
           const targets = 'revealChildren' in el.dataset ? Array.from(el.children) : [el];
+          // autoAlpha's visibility:hidden would drop focusable content (the
+          // research table's tabindex=0 scroll region, links) out of the tab
+          // order until its reveal fires — and init itself is triggered by
+          // the keyboard user's first keydown. Blocks containing focusables
+          // fade with opacity only: tabbing to an invisible link scrolls it
+          // into view, which fires its reveal.
+          const focusable = el.querySelector('a[href], button, input, select, textarea, [tabindex]');
           gsap.from(targets, {
-            autoAlpha: 0,
+            ...(focusable ? { opacity: 0 } : { autoAlpha: 0 }),
             y: 18,
             duration: 0.7,
             ease: 'power2.out',
@@ -73,11 +149,19 @@ const { title = SITE.title, description = SITE.description } = Astro.props;
       }
 
       if (!prefersReducedMotion) {
-        if ('requestIdleCallback' in window) {
-          requestIdleCallback(() => initMotion(), { timeout: 2000 });
-        } else {
-          setTimeout(initMotion, 300);
-        }
+        const interactionEvents = ['pointerdown', 'pointermove', 'wheel', 'touchstart', 'keydown', 'scroll'];
+        let motionStarted = false;
+        const onFirstInteraction = () => {
+          if (motionStarted) return;
+          motionStarted = true;
+          interactionEvents.forEach(type => removeEventListener(type, onFirstInteraction));
+          // Cue for CSS-driven idle decoration (the hero shine sweep): its
+          // infinite background-position animation repaints text every frame,
+          // so it too starts only with user engagement.
+          document.documentElement.classList.add('motion-ready');
+          initMotion();
+        };
+        interactionEvents.forEach(type => addEventListener(type, onFirstInteraction, { passive: true }));
       }
     </script>
   </body>

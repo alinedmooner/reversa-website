@@ -1,11 +1,10 @@
 ---
-import FadeContent from '../FadeContent/FadeContent';
 import { STACK } from '../../site.config';
 ---
 
 <section id="stack" class="section">
   <div class="container">
-    <FadeContent client:visible duration={700}>
+    <div data-reveal>
       <div class="section-head">
         <p class="eyebrow">{STACK.eyebrow}</p>
         <h2 class="section-title">{STACK.heading}</h2>
@@ -13,7 +12,7 @@ import { STACK } from '../../site.config';
       <ul class="stack__chips" role="list">
         {STACK.chips.map(chip => <li class="badge badge--neutral badge--pill stack__chip">{chip}</li>)}
       </ul>
-    </FadeContent>
+    </div>
   </div>
 </section>
 

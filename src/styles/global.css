@@ -10,33 +10,36 @@
      ≥ 40em (640px)  — two-column stats, two-column how-grid
      ≥ 60em (960px)  — four-column how-grid, side-by-side case cards */
 
-@import '../../ds/ds.css';
+/* The layer order normally declared by ds/ds.css — it must precede the
+   imports below. */
+@layer reset, tokens, base, components, motion, utilities;
 
-/* ---------- Font delivery override ----------
-   ds ships unsubsetted TTFs (~880 KB for Inter alone). These woff2 subsets
-   were generated from the very same ds TTFs (fontTools; latin + latin-ext +
-   general punctuation) and are declared under the same family names AFTER
-   the ds import, so they win the @font-face cascade — the TTFs are never
-   downloaded. ds itself stays untouched. */
-@font-face {
-  font-family: 'Inter';
-  src:
-    url('/fonts/inter-var-latin.woff2') format('woff2-variations'),
-    url('/fonts/inter-var-latin.woff2') format('woff2');
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
+/* ds imported piece-by-piece instead of via ds/ds.css for exactly one
+   deviation: ds/css/fonts.css (the unsubsetted-TTF @font-face set) is left
+   out — see the font delivery note below. Keep this list in sync with
+   ds/ds.css when re-syncing ds. */
+@import url('../../ds/css/reset.css') layer(reset);
+@import url('../../ds/css/tokens.css') layer(tokens);
+@import url('../../ds/css/base.css') layer(base);
+@import url('../../ds/css/components.css') layer(components);
+@import url('../../ds/css/motion.css') layer(motion);
+@import url('../../ds/css/utilities.css') layer(utilities);
 
-@font-face {
-  font-family: 'Tiempos';
-  src: url('/fonts/spectral-regular-latin.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
+/* Styling halves of former React islands, now driven by static markup and
+   tiny vanilla scripts (nothing imports the .tsx files anymore). */
+@import '../components/SpotlightCard/SpotlightCard.css';
+@import '../components/GradientText/GradientText.css';
 
-/* Metric-matched local fallbacks: the swap to the web font then changes no
+/* ---------- Font delivery ----------
+   ds ships unsubsetted TTFs (~880 KB for Inter alone); the site serves woff2
+   subsets generated from those very TTFs (fontTools; latin + latin-ext +
+   general punctuation). Their @font-face rules are injected by Layout.astro
+   one frame AFTER first paint, so the ~220 KB of fonts never gate first
+   paint / FCP. Until they land, "Inter"/"Tiempos" resolve to nothing and the
+   metric-matched fallbacks below render. ds/css/fonts.css is excluded above
+   so its TTF declarations can't capture those family names at load. */
+
+/* Metric-matched local fallbacks: the later swap to the web font changes no
    geometry, so there is no layout shift and no late LCP re-candidate. */
 @font-face {
   font-family: 'Inter Fallback';

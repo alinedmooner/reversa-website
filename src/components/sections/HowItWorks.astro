@@ -1,29 +1,25 @@
 ---
-import FadeContent from '../FadeContent/FadeContent';
-import SpotlightCard from '../SpotlightCard/SpotlightCard';
 import { HOW } from '../../site.config';
 ---
 
 <section id="how" class="section">
   <div class="container">
-    <FadeContent client:visible duration={700}>
-      <div class="section-head">
-        <p class="eyebrow">{HOW.eyebrow}</p>
-        <h2 class="section-title">{HOW.heading}</h2>
-      </div>
-    </FadeContent>
+    <div class="section-head" data-reveal>
+      <p class="eyebrow">{HOW.eyebrow}</p>
+      <h2 class="section-title">{HOW.heading}</h2>
+    </div>
 
     <ol class="how__grid" role="list" data-reveal data-reveal-children>
       {
         HOW.steps.map((step, index) => (
           <li class="how__cell">
-            <SpotlightCard client:visible className="how-card" spotlightColor="var(--spot-accent)">
+            <div class="card-spotlight how-card" style="--spotlight-color: var(--spot-accent)">
               <p class="how-card__num mono" aria-hidden="true">
                 {String(index + 1).padStart(2, '0')}
               </p>
               <h3 class="how-card__title">{step.title}</h3>
               <p class="how-card__desc">{step.description}</p>
-            </SpotlightCard>
+            </div>
           </li>
         ))
       }
@@ -32,6 +28,19 @@ import { HOW } from '../../site.config';
     <p class="how__closing">{HOW.closing}</p>
   </div>
 </section>
+
+<script>
+  // Spotlight position tracking (the hover/focus reveal itself is pure CSS,
+  // see SpotlightCard.css). Pointer listeners only fire while hovering, so
+  // this costs nothing at load.
+  document.querySelectorAll<HTMLElement>('.card-spotlight').forEach(card => {
+    card.addEventListener('pointermove', e => {
+      const rect = card.getBoundingClientRect();
+      card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+      card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+    });
+  });
+</script>
 
 <style>
   .how__grid {
